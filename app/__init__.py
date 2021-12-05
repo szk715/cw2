@@ -30,6 +30,7 @@ def create_app(config_name):
     # 配置app
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)
+    app.config['BOOTSTRAP_SERVE_LOCAL'] = True
 
     db.init_app(app)
     mail.init_app(app)
