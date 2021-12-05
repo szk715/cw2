@@ -19,11 +19,6 @@ from sqlalchemy import func
 from .email import send_email
 
 
-def fake_date(fake, end_datetime):
-    str_time = fake.date(end_datetime=end_datetime)
-    str_time = str_time.split('-')
-    int_time = [int(_) for _ in str_time]
-    return datetime.date(int_time[0], int_time[1], int_time[2])
 
 class Permission:
     FOLLOW = 0x01  # 能否关注别人
@@ -373,65 +368,7 @@ class User(UserMixin, db.Model):
         cs = db.session.query(func.count(db.session.query(comments.author_id).filter(comments.author_id == self.id)))
         return cs
 
-    @staticmethod
-    def generate_fake(count = 100):
-        print("生成虚拟用户...")
-        from faker import Faker
-        from random import seed, randint
-        from datetime import timedelta
-        from sqlalchemy.exc import IntegrityError
-        fake = Faker(locale='zh_CN')
-        seed()
-        min_birthday = datetime.date(2005, 12, 12)
 
-        u = User(email='1309025479@qq.com',
-                 nickname='bob',
-                 password='123',
-                 confirmed=True,
-                 username='qinwentao',
-                 location='北京',
-                 about_me='爱拼才会赢',
-                 is_male = 1,
-                 birthday = fake_date(fake, min_birthday),
-                 member_since=fake.past_datetime()-timedelta(10))
-        db.session.add(u)
-        db.session.commit()
-
-        u = User(email='1500012848@pku.edu.cn',
-                 nickname='zsh',
-                 password='123',
-                 confirmed=True,
-                 username='zhushihao',
-                 location='北京',
-                 about_me='爱拼才会赢',
-                 is_male = 1,
-                 birthday = fake_date(fake, min_birthday),
-                 member_since=fake.past_datetime()-timedelta(10))
-        db.session.add(u)
-        db.session.commit()
-
-        i = 2
-        while i < count:
-            u = User(email=fake.email(),
-                     nickname=fake.user_name(),
-                     password='123',
-                     confirmed=True,
-                     username=fake.name(),
-                     location=fake.city(),
-                     about_me=fake.text(),
-                     is_male=randint(0, 1),
-                     birthday=fake_date(fake, min_birthday),
-                     member_since=fake.past_datetime()-timedelta(10))
-            db.session.add(u)
-            try:
-                db.session.commit()
-                if i% 10 == 0:
-                    print(i)
-                i += 1
-            except IntegrityError:
-                print('oops')
-                db.session.rollback()
-        print(count)
 
     def __repr__(self):
         return '<User %r>' % self.username
@@ -500,30 +437,7 @@ class Board(db.Model):
     def posts_num(self):
         return self.posts.count()
 
-    @staticmethod
-    def generate_fake(count=10):
-        print("开始生成虚拟版块...")
-        from faker import Faker
-        from random import randint, seed
-        from datetime import timedelta
-        seed()
-        fake = Faker(locale='zh_CN')
-        user_count = User.query.count()
-        for i in range(count):
-            u = User.query.offset(randint(0, user_count - 1)).first()
-            timestamp = u.member_since + timedelta(seconds=randint(300, 1800))
-            name = fake.word()
-            while Board.query.filter_by(name=name).first():
-                name = fake.word()
-            b = Board(name=name,
-                      intoduction=fake.sentence() + fake.sentence(),
-                      timestamp=timestamp,
-                      )
-            b.moderators.append(u)
-            b.collectors.append(u)
-            db.session.add(b)
-            db.session.commit()
-        print(count)
+
 
 
 class Post(db.Model):
@@ -586,28 +500,7 @@ class Post(db.Model):
         db.session.commit()
 
 
-    @staticmethod
-    def generate_fake(count=100):
-        print("生成虚拟帖子...")
-        from faker import Faker
-        from random import randint, seed
-        from datetime import timedelta
-        seed()
-        fake = Faker(locale='zh_CN')
-        user_count = User.query.count()
-        board_count = Board.query.count()
-        for i in range(count):
-            if i%100 == 0:
-                print(i)
-            u = User.query.offset(randint(0, user_count - 1)).first()
-            b = Board.query.offset(randint(0, board_count - 1)).first()
-            #  确保发帖时间在用户账号和版块的创建之后
-            t = max(u.member_since + timedelta(seconds=randint(300, 1800)), b.timestamp + timedelta(seconds=randint(300, 1800)))
-            title = fake.sentence()
-            body = fake.text()
-            view_count = randint(1, 10000)
-            Post.new_post(title, body, u, b, t, view_count)
-        print(count)
+
 
 class Comment(db.Model):
     __tablename__ = 'comments'
@@ -620,40 +513,10 @@ class Comment(db.Model):
     refloor = db.Column(db.Integer)
     disabled = db.Column(db.Boolean, default=False)
 
-    @staticmethod
-    def generate_fake(count=800):
-        print("生成虚拟回复...")
-        from faker import Faker
-        from random import randint, seed
-        from datetime import timedelta
-        seed()
-        fake = Faker(locale='zh_CN')
-        user_count = User.query.count()
-        post_count = Post.query.count()
-        for i in range(count):
-            if i % 100:
-                print(i)
-            u = User.query.offset(randint(0, user_count - 1)).first()
-            p = Post.query.offset(randint(0, post_count - 1)).first()
-            body = fake.text()
-            # 确保回帖比帖子的最后一条回帖晚
-            t = max(u.member_since + timedelta(seconds = randint(300, 1800)), p.recent_time + timedelta(seconds = randint(10, 1000)))
-            refloor = randint(0, p.comment_count)
-            Post.new_comment(body, u, p, refloor, t)
-        print(count)
 
 
-def generate_fake():
-    # 13 minutes to finish
-    print(datetime.datetime.utcnow())
-    db.drop_all()
-    db.create_all()
-    Role.insert_roles()
-    User.generate_fake(count=100)
-    Board.generate_fake(count=15)
-    Post.generate_fake(count=500)
-    Comment.generate_fake(count=3000)
-    print(datetime.datetime.utcnow())
+
+
 
 
 

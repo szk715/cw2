@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*
 import os
+import logging
 from flask_script import Manager, Shell
 from flask_migrate import Migrate, MigrateCommand
 from app import create_app, db
@@ -36,4 +37,11 @@ manager.add_command('db', MigrateCommand)
 
 
 if __name__ == "__main__":
+    app.debug = True
+    handler = logging.FileHandler('flask.log', encoding='UTF-8')
+    handler.setLevel(logging.INFO)
+    logging_format = logging.Formatter(
+        '%(asctime)s - %(levelname)s - %(filename)s - %(funcName)s - %(lineno)s - %(message)s')
+    handler.setFormatter(logging_format)
+    app.logger.addHandler(handler)
     app.run()

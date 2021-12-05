@@ -97,39 +97,6 @@ def most_comment():
 
 ################################################################ 首页（END） ################################################################
 
-################################################################ 比较（START） ################################################################
-@main.route('/compare',methods=['GET','POST'])
-def compare():
-    form=CompareForm()
-    if form.validate_on_submit():
-        board1=form.board1.data
-        board2=form.board2.data
-        return redirect(url_for('.compare_result',board1=board1 ,board2=board2))
-    return render_template('compare.html', form=form)
-
-@main.route('/compare-result/<board1>/<board2>',methods=['GET','POST'])
-def compare_result(board1,board2):
-    board_1 = Board.query.get_or_404(board1)
-    board_2 = Board.query.get_or_404(board2)
-    count1 = db.session.query(Post.author_id,func.count(Post.id).label("count")).group_by(Post.author_id).filter(Post.board_id==board1).subquery()
-    count2 = db.session.query(Post.author_id,func.count(Post.id).label("count")).group_by(Post.author_id).filter(Post.board_id==board2).subquery()
-    tmp = db.session.query(User,count1.c.count,count2.c.count).outerjoin((count1,User.id==count1.c.author_id)).outerjoin((count2,User.id==count2.c.author_id)).filter(or_(count1.c.count > count2.c.count,and_(count1.c.count>0,count2.c.count==None)))
-    form=CompareForm()
-    if form.validate_on_submit():
-        board1=form.board1.data
-        board2=form.board2.data
-        return redirect(url_for('.compare_result',board1=board1 ,board2=board2))
-    form.board1.data=board_1.id
-    form.board2.data=board_2.id
-    page = request.args.get('page', 1, type=int)
-    pagination = tmp.paginate(
-        page, per_page=current_app.config['BBS_FOLLOWERS_PER_PAGE'],
-        error_out=False)
-    users = pagination.items
-    return render_template('compare_result.html',form=form,users=users,board1=board_1,board2=board_2)
-
-################################################################ 比较（END） ################################################################
-
 ################################################################ 关注（START） ################################################################
 
 @main.route('/follow/<username>')
