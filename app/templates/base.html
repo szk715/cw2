@@ -24,7 +24,7 @@ type="image/x-icon">
         <link href="https://cdnjs.cloudflare.com/ajax/libs/SimpleLightbox/2.1.0/simpleLightbox.min.css" rel="stylesheet" />
         <!-- Core theme CSS (includes Bootstrap)-->
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='index.css')}}">
-    <script href="{{ url_for('static', filename='js/styles.css')}}"></script>
+
 {% endblock %}
 
 {% block title %}BBS{% endblock %}
@@ -130,5 +130,6 @@ type="image/x-icon">
 
 {% block scripts %}
 {{ super() }}
+    <script src="{{ url_for('static', filename='js/scripts.js')}}"></script>
 {{ moment.include_moment() }}
 {% endblock %}
