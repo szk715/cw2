@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*
 import os
 import logging
+from logging.handlers import RotatingFileHandler
+from flask_bootstrap import Bootstrap
 from flask_script import Manager, Shell
 from flask_migrate import Migrate, MigrateCommand
 from app import create_app, db
-from app.models import Role, User, Board, Post, Comment, Permission, Follow, generate_fake, comments_likes, posts_collections, boards_collections, moderators
+from app.models import Role, User, Board, Post, Comment, Permission, Follow, comments_likes, posts_collections, boards_collections, moderators
 
 app = create_app(os.getenv('BBS_CONFIG') or 'default')
 manager = Manager(app)
@@ -15,7 +17,7 @@ migrate = Migrate(app, db)
 # 这可以用来检查数据库，初始化数据库等
 def make_shell_context():
     return dict(app=app, db=db, Role=Role, User=User, Board=Board, Post=Post,
-                Comment=Comment, Permission=Permission, Follow=Follow, Fake=generate_fake,
+                Comment=Comment, Permission=Permission, Follow=Follow,
                 comments_likes=comments_likes, posts_collections=posts_collections,
                 boards_collections=boards_collections, moderators=moderators)
 
@@ -37,11 +39,16 @@ manager.add_command('db', MigrateCommand)
 
 
 if __name__ == "__main__":
-    app.debug = True
-    handler = logging.FileHandler('flask.log', encoding='UTF-8')
-    handler.setLevel(logging.INFO)
-    logging_format = logging.Formatter(
-        '%(asctime)s - %(levelname)s - %(filename)s - %(funcName)s - %(lineno)s - %(message)s')
-    handler.setFormatter(logging_format)
-    app.logger.addHandler(handler)
+    logging.basicConfig(level=logging.DEBUG)
+    # 创建日志记录器，指明日志保存的路径，每个日志文件的最大值，保存的日志文件个数上限
+    log_handle = RotatingFileHandler("log.txt", maxBytes=1024 * 1024, backupCount=5)
+    # 创建日志记录的格式
+    formatter = logging.Formatter("format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s-%(funcName)s',")
+    # 为创建的日志记录器设置日志记录格式
+    log_handle.setFormatter(formatter)
+    # 为全局的日志工具对象添加日志记录器
+    logging.getLogger().addHandler(log_handle)
+    logging.warning('用来用来打印警告信息')
+    logging.error('一般用来打印一些错误信息')
+    logging.critical('用来打印一些致命的错误信息，等级最高')
     app.run()
