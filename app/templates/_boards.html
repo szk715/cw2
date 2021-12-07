@@ -11,17 +11,17 @@
 {#        </div>#}
 {#    </article>#}
 
-      <div class="container gallery-container">
+      <div class="gallery-container">
 
 
 
-		    <div class="tz-gallery">
+		    <div class="">
 
-
-		            <div class="col-sm-6 col-md-4">
+                <div class = "">
+		            <div class="">
 		                <div class="thumbnail">
 		                    <a  href="{{ url_for('.board',boardname=board.name) }}">
-                                <img src="{{ url_for('static',filename='images/coast.jpg') }}" alt="Board photo">
+                                <img src="{{ url_for('static',filename='images/coast.jpg') }}" style="width: 100%" alt="Board photo">
                             </a>
 		                    <div class="caption">
 		                        <h3><a href="{{ url_for('.board',boardname=board.name) }}">{{ board.name }}</a>[{{board.posts.count()}}帖子]</h3>
@@ -29,6 +29,7 @@
 		                    </div>
 		                </div>
 		            </div>
+                </div>
             </div>
       </div>
   {% endfor %}

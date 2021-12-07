@@ -192,4 +192,30 @@ p.re{
     font-size:90%;
 }
 
+.cookie-tips {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100px;
+    background: rgba(0,0,0,0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    font-size: 14px;
+}
 
+.navbar-inverse {
+    border: none;
+    background: rgba(47,140,255,0.5);
+    box-shadow: 1px 1px 3px 1px rgb(0,0,0,0.2);
+}
+
+.navbar-inverse .navbar-brand {
+    color: #fff;
+}
+
+.navbar-inverse .navbar-nav > li > a {
+    color:#fff
+}

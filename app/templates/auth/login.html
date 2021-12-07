@@ -13,4 +13,16 @@
     <p>忘记密码？ <a href="{{ url_for('auth.password_reset_request')}}">点此重置密码</a>.</p>
     <p>新用户? <a href="{{ url_for('auth.register') }}">点此注册</a>.</p>
 </div>
+<div class="cookie-tips">
+    <div>
+        本网站使用了Cookie技术来为您提供完整的服务，若您继续使用本网站，则表示您同意并接受我们使用Cookie
+    </div>
+    <div style="margin-left: 100px;" onclick="close()">X</div>
+</div>
+<script type="text/javascript">
+    var box1 = document.querySelector(".cookie-tips");
+    box1.onclick = function () {
+        box1.style.display = 'none'
+    }
+</script>
 {% endblock %}
