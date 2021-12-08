@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*
-from flask import Flask
+from flask import Flask, render_template
 # 用于设计关系对象数据库
 from flask_sqlalchemy import SQLAlchemy
 # 登陆管理
@@ -13,6 +13,7 @@ from flask_pagedown import PageDown
 # 有关时间的配置
 from flask_moment import Moment
 from config import config
+from flask_wtf.csrf import CsrfProtect
 
 db = SQLAlchemy()
 mail = Mail()
@@ -24,13 +25,15 @@ login_manager = LoginManager()
 login_manager.session_protection = 'strong'
 login_manager.login_view = 'auth.login'
 
-
+csrf = CsrfProtect()
 def create_app(config_name):
     app = Flask(__name__)
     # 配置app
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)
     app.config['BOOTSTRAP_SERVE_LOCAL'] = True
+
+    csrf.init_app(app)
 
     db.init_app(app)
     mail.init_app(app)
@@ -46,3 +49,6 @@ def create_app(config_name):
     app.register_blueprint(auth_blueprint)
 
     return app
+
+
+

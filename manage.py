@@ -2,9 +2,14 @@
 import os
 import logging
 from logging.handlers import RotatingFileHandler
+
+from flask import render_template
 from flask_bootstrap import Bootstrap
 from flask_script import Manager, Shell
 from flask_migrate import Migrate, MigrateCommand
+from flask_wtf.csrf import CsrfProtect
+from app import csrf
+
 from app import create_app, db
 from app.models import Role, User, Board, Post, Comment, Permission, Follow, comments_likes, posts_collections, boards_collections, moderators
 
@@ -13,6 +18,14 @@ manager = Manager(app)
 migrate = Migrate(app, db)
 
 
+@csrf.error_handler
+def csrf_error(reason):
+    return render_template('csrf_error.html', reason=reason), 400
+@csrf.exempt
+@app.route('/foo', methods=('GET', 'POST'))
+def my_handler():
+    # ...
+    return 'ok'
 # 使用python manage.py shell可以进入命令行，直接对传入shell的参数进行操作
 # 这可以用来检查数据库，初始化数据库等
 def make_shell_context():
