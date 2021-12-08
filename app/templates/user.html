@@ -4,7 +4,7 @@
  {% block title %}BBS - {{ user.username }}{% endblock %}
  {% block page_content %}
 <div class="page-header">
-    <img class="img-rounded profile-thumbnail" src="{{ user.gravatar(size=256) }}">
+{#    <img class="img-rounded profile-thumbnail" src="{{ user.gravatar(size=256) }}">#}
     <div class="profile-header">
         <h1>{{ user.username }}
         {% if user.disabled %} [该用户已被删除]{% endif %}
